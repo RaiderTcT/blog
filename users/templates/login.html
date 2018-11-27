@@ -1,0 +1,13 @@
+{% extends 'base.html'%}
+{% load i18n bootstrap4 static%}
+{% block title%}{% trans "login" %}{% endblock %}
+<link rel="stylesheet" href="static/css/bootstrap.css">
+{% block content %}
+<form action="{% url 'users:login'%}" method="POST">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input class="btn btn-outline-primary my-2 my-sm-0" type="submit" name='submit' value="{% trans 'submit'%}">
+    <input type="hidden" name='next' value="{% url 'blog:index'%}">
+</form>
+<p> {% trans "no account?" %} <a href="{% url 'users:register'%}">{% trans "please register" %}</a></p>
+{% endblock %}

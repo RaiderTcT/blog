@@ -2,14 +2,15 @@
 <!DOCTYPE html>
 <html>
   <head>
+
     <link rel="shortcut icon" href="{% static 'img/dj.ico' %}">
     <title>{% block title %}My amazing site{% endblock %}</title>
-    <link rel="stylesheet" href="static/css/bootstrap.css">
-    <script src="static/js/bootstrap.js"></script>
-    <script src="static/js/jquery_js"></script>
-    <script src="static/js/vue.js"></script>
-<!--     {% bootstrap_css %}
-    {% bootstrap_javascript jquery='full' %} -->
+<!--     <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/vue.min.js"></script> -->
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
 </head>
 
 <body>
@@ -19,54 +20,67 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link active" href="#">{% trans "Home" %} <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="#">{% trans "Blog" %}</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
-        </li>
-      </ul>
       <form class="form-inline my-2 my-lg-0" action="#" method="post">
         {% csrf_token %}
         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="key_word">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">{% trans "Search" %}</button>
       </form>
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link active" href="#">{% trans "Home" %} <span class="sr-only">(current)</span></a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link active" href="#">{% trans "Blog" %}</a>
+        </li>
+        {% if user.is_authenticated %}
+          <li class='nav-item'>
+            <a href="{% url 'users:logout' %}" class="nav-link active">{% trans "Sign out"%}</a>
+          </li>
+        {% else %}
+          <li class='nav-item'>
+            <a href="{% url 'users:login'%}" class="nav-link active">{% trans "Sign in"%}</a>
+          </li>
+          <li class='nav-item'>
+            <a href="{% url 'users:register'%}" class="nav-link active">{% trans "Sign up"%}</a>
+          </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Disabled</a>
+        </li>
+      </ul>
+
     </div>
   </nav>
-{#    django message#}
-{#  {% if messages %}#}
-{#    <ul class="messages">#}
-{#        {% for message in messages %}#}
-{#        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>#}
-{#            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}#}
-{#            {{ message }}#}
-{#        </li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
-{#  {% endif %}#}
-  {% if messages %}
-    {% for message in messages %}
-      {# 原生 Bootstrap #}
-{#      <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">#}
-{#        {{ message }}#}
-{#        <button type="button" class="close" data-dismiss="alert" aria-label="Close">#}
-{#          <span aria-hidden="true">&times;</span>#}
-{#        </button>#}
-{#      </div>#}
-      {# django-bootstrap #}
-      <div>
+  {% bootstrap_messages %}
+    <!-- django message -->
+<!--   {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+  {% endif %} -->
+<!--   {% if messages %}
+    {% for message in messages %} -->
+      <!-- 原生 Bootstrap  -->
+<!--       <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div> -->
+      <!-- django-bootstrap -->
+<!--       <div>
         {% bootstrap_alert message alert_type=message.tags %}
       </div>
     {% endfor %}
   {% endif %}
-
-
+ -->
     <div class="container">
       <div class="page-header">
         {% block header %}{% endblock %}
