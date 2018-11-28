@@ -6,7 +6,7 @@
 <form action="{% url 'users:login'%}" method="POST">
     {% csrf_token %}
     {% bootstrap_form form %}
-    <input class="btn btn-outline-primary my-2 my-sm-0" type="submit" name='submit' value="{% trans 'submit'%}">
+    <input class="btn btn-outline-primary my-2 my-sm-0" type="submit" name='submit' value="{% trans 'Sign in'%}"> <a href="{% url 'users:password_reset'%}">{% trans "Forgot Password" %}</a>
     <input type="hidden" name='next' value="{% url 'blog:index'%}">
 </form>
 <p> {% trans "no account?" %} <a href="{% url 'users:register'%}">{% trans "please register" %}</a></p>

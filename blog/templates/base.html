@@ -28,13 +28,19 @@
       </form>
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link active" href="#">{% trans "Home" %} <span class="sr-only">(current)</span></a>
+          <a class="nav-link active" href="{% url 'blog:index'%}">{% trans "Home" %} <span class="sr-only">(current)</span></a>
         </li>
 
         <li class="nav-item">
           <a class="nav-link active" href="#">{% trans "Blog" %}</a>
         </li>
         {% if user.is_authenticated %}
+          <li class='nav-item'>
+            <a href="{% url 'users:user' user.username %}" class="nav-link active">{{ user.username}}</a>
+          </li>
+          <li class='nav-item'>
+            <a href="{% url 'users:password_change'%}" class="nav-link active">{% trans "Update password"%}</a>
+          </li>
           <li class='nav-item'>
             <a href="{% url 'users:logout' %}" class="nav-link active">{% trans "Sign out"%}</a>
           </li>
@@ -43,7 +49,7 @@
             <a href="{% url 'users:login'%}" class="nav-link active">{% trans "Sign in"%}</a>
           </li>
           <li class='nav-item'>
-            <a href="{% url 'users:register'%}" class="nav-link active">{% trans "Sign up"%}</a>
+            <a href="{% url 'users:register'%}" class="btn btn-outline-primary">{% trans "Sign up"%}</a>
           </li>
         {% endif %}
         <li class="nav-item">

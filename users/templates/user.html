@@ -5,7 +5,8 @@
 <div>
   <div style='position: absolute'>
     <div>
-      <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256">
+      <a href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top"  title="{% trans 'Change Profile' %}">
+      <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256"></a>
     </div>
     <div>
       <h2>{{ target_user.username }}</h2>
@@ -13,13 +14,11 @@
     <div>
       {% if user.is_authenticated%}
         {% if target_user == user %}
-          <a href="#" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
+          <a href="{% url 'users:profile' user.pk%}" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
         {% else%}
           <a href="#" class="btn btn-outline-primary btn-block ">{% trans "Follow" %}</a>    
         {% endif%} 
       {% endif%}
-
-
     </div>
   </div>
   <div style="margin-left: 280px;">
@@ -29,6 +28,10 @@
       <li>{% trans "Last login "%}：{{ target_user.last_login }}</li>
     </ul>
   </div>
-
 </div>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+});
+</script>
 {% endblock %}

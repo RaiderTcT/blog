@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static i18n bootstrap4 %}
+{% block title %} {% trans "Profile" %}{% endblock %}
+{% block content%}
+<form action="{% url 'users:profile' user.pk%}" method='post'>
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <input type="submit" value="{% trans 'Update profile' %}" class="btn btn-outline-success">
+  <input type="hidden" value="{% url 'users:user' user.username %}">
+</form>
+{% endblock %}

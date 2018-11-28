@@ -83,7 +83,8 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, '/blog/templates').replace("\\", '/')],
+        'DIRS': [os.path.join(BASE_DIR, '/blog/templates').replace("\\", '/'),
+                 os.path.join(BASE_DIR, '/users/templates').replace("\\", '/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -176,7 +177,33 @@ STATICFILES_FINDERS = (
 AUTH_USER_MODEL = 'users.myUser'
 
 # login_required 默认重定向url
-LOGIN_URL = '/login/'
+LOGIN_URL = 'account/login/'
+
+# 日志输出到控制台
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
+
+# 邮件设置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') or password.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') or password.EMAIL_HOST_PASSWORD
+EMAIL_USE_SSL = True
+
 
 # Default settings
 BOOTSTRAP4 = {
