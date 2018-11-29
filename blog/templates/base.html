@@ -11,6 +11,9 @@
     <script src="/static/js/vue.min.js"></script> -->
     {% bootstrap_css %}
     {% bootstrap_javascript jquery='full' %}
+    <style type="text/css">
+      a {color:black;}
+    </style>
 </head>
 
 <body>
@@ -35,14 +38,19 @@
           <a class="nav-link active" href="#">{% trans "Blog" %}</a>
         </li>
         {% if user.is_authenticated %}
-          <li class='nav-item'>
-            <a href="{% url 'users:user' user.username %}" class="nav-link active">{{ user.username}}</a>
-          </li>
-          <li class='nav-item'>
-            <a href="{% url 'users:password_change'%}" class="nav-link active">{% trans "Update password"%}</a>
-          </li>
-          <li class='nav-item'>
-            <a href="{% url 'users:logout' %}" class="nav-link active">{% trans "Sign out"%}</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id='navbardrop' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+              <img src="{{ user.avatar.url }} " width="35" height="35" />
+            </a>
+            <div class="dropdown-menu">
+              <h5 class="dropdown-header">{{ user.username }}</h5>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'users:user' user.username %}">{% trans "Your Profile" %}</a>
+              <a href="{% url 'users:password_change'%}" class="dropdown-item">{% trans "Update password"%}</a>
+              <a href="{% url 'users:password_reset' %}" class="dropdown-item">{% trans "Password reset"%}</a>
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'users:logout' %}" class="dropdown-item">{% trans "Sign out"%}</a>
+            </div>
           </li>
         {% else %}
           <li class='nav-item'>

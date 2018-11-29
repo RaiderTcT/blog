@@ -2,33 +2,54 @@
 {% load i18n static bootstrap4 %}
 {% block title %}{{ target_user.username}}{%endblock%}
 {% block content%}
-<div>
-  <div style='position: absolute'>
-    <div>
-      <a href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top"  title="{% trans 'Change Profile' %}">
-      <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256"></a>
+<div class="container-fluid">
+  <div class="row">
+    {% if target_user == user%}
+      {% include '_user_nav.html'%}
+    {% endif %}
+    <div class="col-sm-10">
+      <div>
+        <h2>{% trans "Profile" %}</h2>
+        <hr>
+      </div>
+      <div>
+        <div style='position: absolute'>
+            <a href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top"  title="{% trans 'Change Profile' %}">
+            <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256"></a>
+            <h2>{{ target_user.username }}</h2>
+            {% if user.is_authenticated%}
+              {% if target_user == user %}
+                <a href="{% url 'users:profile' user.pk%}" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
+              {% else%}
+                {% if follow_flag %}
+                  <a href="#" class="btn btn-outline-primary btn-block">{% trans "Follow" %}</a> 
+                {% else %}
+                  <a href="#" class="btn btn-outline-primary btn-block">{% trans "Unfollow" %}</a> 
+                {% endif %}
+              {% endif%} 
+            {% endif%}
+        </div>
+        <div style="margin-left: 280px;">
+          <div>
+            <span class='mx-3'>{% trans 'Following'%}: {{followed}}</span>
+            <span class='mx-3'>{% trans 'Follower'%}: {{follower}}</span>
+            <span class='mx-3'>{% trans 'Blog'%}: 2</span>
+            <hr>
+          </div>
+          <div>
+            <p>{% trans 'Name'%}: {{target_user.name}}</p>
+            <p>{% trans "EMail"%}: <a href="mailto:{{ target_user.email }}?subject=Hello">{{ target_user.email }}</a></p>
+            <p>{% trans 'Profession'%}: {{target_user.profession}}</p>
+            <p>{% trans 'Location'%}: {{target_user.location}}</p>
+            <p>{% trans "Last login "%}：{{ target_user.last_login }}</p>
+            <p>{% trans "Bio "%}: {{ target_user.profile.about_me }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-      <h2>{{ target_user.username }}</h2>
-    </div>
-    <div>
-      {% if user.is_authenticated%}
-        {% if target_user == user %}
-          <a href="{% url 'users:profile' user.pk%}" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
-        {% else%}
-          <a href="#" class="btn btn-outline-primary btn-block ">{% trans "Follow" %}</a>    
-        {% endif%} 
-      {% endif%}
-    </div>
-  </div>
-  <div style="margin-left: 280px;">
-    <p>{% trans "EMail"%}: <a href="mailto:{{ target_user.email }}?subject=Hello">{{ target_user.email }}</a></p>
-    <ul>
-      <li>{% trans "About me "%}: {{ target_user.profile.about_me }} </li>
-      <li>{% trans "Last login "%}：{{ target_user.last_login }}</li>
-    </ul>
   </div>
 </div>
+
 <script>
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   

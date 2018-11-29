@@ -13,7 +13,7 @@ from .models import myUser
 from .forms import ProfileForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 # Create your views here.
 
 
@@ -28,20 +28,32 @@ class LogoutView(auth_views.LogoutView):
 class RegisterView(SuccessMessageMixin, CreateView):
     form_class = RegisterForm
     template_name = 'register.html'
-    # 不在函数无法调用reverse
-    success_url = reverse_lazy('login')
     success_message = _("Account %(username)s was create successfully")
 
+    def get_success_url(self):
+        return reverse("users:login")
 
-class PasswordChangeView(SuccessMessageMixin, auth_views.PasswordChangeView):
+
+class PasswordChangeView(auth_views.PasswordChangeView):
     template_name = 'password_change.html'
-    success_url = reverse_lazy('users:login')
+    # success_url = reverse_lazy('users:login')
+
+    def get_success_url(self):
+        return reverse("users:login")
 
     def form_valid(self, form):
+        """
+        修改密码后退出登录
+        """
         response = super().form_valid(form)
         messages.success(self.request, _("Your password has been changed, please login again "))
         logout(self.request)
         return response
+
+
+# class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
+#     template_name = 'registration/password_change_done.html'
+#     title = _('Password change successful')
 
 
 class PasswordResetView(auth_views.PasswordResetView):
@@ -49,14 +61,33 @@ class PasswordResetView(auth_views.PasswordResetView):
     email_template_name = "password_reset_email.html"
     template_name = "password_reset.html"
     # subject_template_name =
-    success_url = reverse_lazy('users:login')
+    # success_url = reverse_lazy('users:login')
+
+    def form_valid(self, form):
+        """
+        修改密码后退出登录
+        """
+        response = super().form_valid(form)
+        reset_message = "We've emailed you instructions for setting your password,\
+                        if an account exists with the email you entered.\
+                        You should receive them shortly.\
+                        If you don't receive an email,\
+                        please make sure you've entered the address you registered with,\
+                        and check your spam folder."
+
+        messages.warning(self.request, _(reset_message))
+        logout(self.request)
+        return response
+
+    def get_success_url(self):
+        return reverse("blog:index")
 
 
 class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    # success_url = 'account/login'
     template_name = 'password_reset_confirm.html'
 
-
+    def get_success_url(self):
+        return reverse("users:login")
 # @login_required
 # def change_password(request):
 #     if request.method == "POST":
@@ -78,7 +109,11 @@ def user(request, user_username):
     if request.method == "GET":
         target_user = get_object_or_404(myUser, username=user_username)
         # user = request.user
-        context = {'target_user': target_user}
+        followed = target_user.followed.count()
+        follower = target_user.follower.count()
+        follow_flag = False if request.user.is_following(target_user) else True
+        context = {'target_user': target_user, 'followed': followed,
+                   'follower': follower, 'follow_flag': follow_flag}
     return render(request, 'user.html', context)
 
 
