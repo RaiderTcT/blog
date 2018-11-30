@@ -62,11 +62,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.redirects',
     'blog',
     'users',
     'bootstrap4',
 ]
-
+SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -76,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -178,6 +181,9 @@ AUTH_USER_MODEL = 'users.myUser'
 
 # login_required 默认重定向url
 LOGIN_URL = 'account/login/'
+# LoginView POST请求没有 next时 默认重定向到
+LOGIN_REDIRECT_URL = "/"
+
 
 # 日志输出到控制台
 LOGGING = {

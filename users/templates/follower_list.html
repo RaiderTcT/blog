@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load i18n static bootstrap4 %}
+{% block title %}{% trans 'Follower' %}{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+  <div class="row">
+    {% include '_user_nav.html'%}
+    <div class="col-sm-10">
+      <div>
+        <h2 class="test">{% trans "My Follower" %}</h2>
+        <hr>
+      </div>
+      <ul class="list-group">
+        {% for follow in follower_list %}
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-1">
+                <a href="{% url 'users:user' follow.follower.username %}">
+                  <img src="{{follow.follower.avatar.url}}" alt="{% trans 'Avatar'%}" width="50" height="50"  class='rounded'>
+                </a>
+              </div>
+              <div class="col-sm">
+                <span class="follow-name">{{ follow.follower.username}}</span>
+              </div>  
+            </div>
+          </li>
+        {% empty %}
+          <p>{% trans "No followers yet" %}</p>
+        {% endfor%}
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% bootstrap_pagination page_obj url='?page=1' size="middle" justify_content="center"%}
+{% endblock %}

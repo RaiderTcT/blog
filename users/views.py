@@ -1,19 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import views as auth_views
 from django.views.generic.edit import CreateView, UpdateView, View, FormView
+from django.views.generic import ListView
 from .forms import RegisterForm
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import logout
 from .models import myUser
 from .forms import ProfileForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
+from django.contrib.auth.decorators import permission_required, login_required
+from django.utils.decorators import method_decorator
+
 # Create your views here.
 
 
@@ -22,7 +25,7 @@ class LoginView(auth_views.LoginView):
 
 
 class LogoutView(auth_views.LogoutView):
-    template_name = 'index.html'
+    template_name = 'logged_out.html'
 
 
 class RegisterView(SuccessMessageMixin, CreateView):
@@ -34,7 +37,7 @@ class RegisterView(SuccessMessageMixin, CreateView):
         return reverse("users:login")
 
 
-class PasswordChangeView(auth_views.PasswordChangeView):
+class PasswordChangeView(LoginRequiredMixin, auth_views.PasswordChangeView):
     template_name = 'password_change.html'
     # success_url = reverse_lazy('users:login')
 
@@ -106,14 +109,19 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 def user(request, user_username):
     """查看个人信息"""
-    if request.method == "GET":
-        target_user = get_object_or_404(myUser, username=user_username)
-        # user = request.user
-        followed = target_user.followed.count()
-        follower = target_user.follower.count()
+
+    target_user = get_object_or_404(myUser, username=user_username)
+    # user = request.user
+    followed = target_user.followed.count()
+    follower = target_user.follower.count()
+    context = {'target_user': target_user, 'followed': followed,
+               'follower': follower}
+    if request.user.is_authenticated:
         follow_flag = False if request.user.is_following(target_user) else True
-        context = {'target_user': target_user, 'followed': followed,
-                   'follower': follower, 'follow_flag': follow_flag}
+        followed_flag = True if target_user.is_following(request.user) else False
+        context['follow_flag'] = follow_flag
+        context['followed_flag'] = followed_flag
+
     return render(request, 'user.html', context)
 
 
@@ -123,4 +131,40 @@ class Profile(LoginRequiredMixin, UpdateView):
     fields = ['name', 'email', 'location', 'profession', 'bio', 'avatar']
     template_name = 'profile.html'
 
+    def get_object(self):
+        return self.model.objects.get(id=self.request.user.id)
+
+    def get_login_url(self):
+        return reverse('users:login')
+
+    def get_success_url(self):
+        return reverse("users:user", args=(self.request.user.username,))
+
 # def edit_profile(request)
+
+
+class FollowView(LoginRequiredMixin, ListView):
+    model = myUser
+    field = ['name', 'avatar', 'bio']
+    paginate_by = 10
+    paginate_orphans = 15
+
+    def get_login_url(self):
+        return reverse('users:login')
+
+
+class FollowerView(FollowView):
+    template_name = 'follower_list.html'
+    context_object_name = 'follower_list'
+
+    def get_queryset(self):
+
+        return self.request.user.follower.all().order_by('follower')
+
+
+class FollowedView(FollowView):
+    template_name = 'followed_list.html'
+    context_object_name = 'followed_list'
+
+    def get_queryset(self):
+        return self.request.user.followed.all().order_by("followed")

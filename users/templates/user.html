@@ -15,7 +15,7 @@
       <div>
         <div style='position: absolute'>
             <a href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top"  title="{% trans 'Change Profile' %}">
-            <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256"></a>
+            <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256" class="rounded"></a>
             <h2>{{ target_user.username }}</h2>
             {% if user.is_authenticated%}
               {% if target_user == user %}
@@ -31,9 +31,14 @@
         </div>
         <div style="margin-left: 280px;">
           <div>
-            <span class='mx-3'>{% trans 'Following'%}: {{followed}}</span>
-            <span class='mx-3'>{% trans 'Follower'%}: {{follower}}</span>
-            <span class='mx-3'>{% trans 'Blog'%}: 2</span>
+            <a href="{% url 'users:followed'%}" class="mx-3">{% trans 'Following'%}: <span class="badge badge-dark">{{followed}}</span></a>
+            <a href="{% url 'users:follower'%}" class="mx-3">{% trans 'Follower'%}: <span class="badge badge-info">{{follower}}</span></a>
+            <a href="#" class="mx-3">{% trans 'Blog'%}: <span class="badge badge-success">2</span></a>
+            {% if user.is_authenticated%}
+              {% if followed_flag%}
+                | <span class='badge badge-primary'>{% trans 'Follows you'%}</span>
+              {% endif %}
+            {% endif %}
             <hr>
           </div>
           <div>
@@ -50,9 +55,9 @@
   </div>
 </div>
 
-<script>
+<!-- <script>
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
 });
-</script>
+</script> -->
 {% endblock %}
