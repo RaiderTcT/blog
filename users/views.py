@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import views as auth_views
 from django.views.generic.edit import CreateView, UpdateView, View, FormView
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from .forms import RegisterForm
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
@@ -116,7 +116,7 @@ def user(request, user_username):
     follower = target_user.follower.count()
     context = {'target_user': target_user, 'followed': followed,
                'follower': follower}
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user != target_user:
         follow_flag = False if request.user.is_following(target_user) else True
         followed_flag = True if target_user.is_following(request.user) else False
         context['follow_flag'] = follow_flag
@@ -158,8 +158,15 @@ class FollowerView(FollowView):
     context_object_name = 'follower_list'
 
     def get_queryset(self):
+        self.target_user = get_object_or_404(self.model, username=self.kwargs['username'])
+        return self.target_user.follower.filter().order_by('follower')
 
-        return self.request.user.follower.all().order_by('follower')
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in the publisher
+        context['target_user'] = self.target_user
+        return context
 
 
 class FollowedView(FollowView):
@@ -167,4 +174,40 @@ class FollowedView(FollowView):
     context_object_name = 'followed_list'
 
     def get_queryset(self):
-        return self.request.user.followed.all().order_by("followed")
+        self.target_user = get_object_or_404(self.model, username=self.kwargs['username'])
+        return self.target_user.followed.all().order_by("followed")
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in the publisher
+        context['target_user'] = self.target_user
+        return context
+
+
+@login_required
+def follow(request, username):
+    user = request.user
+    target_user = get_object_or_404(myUser, username=username)
+    if user.is_following(target_user):
+        msg = _("You are already following this user !")
+        messages.add_message(request, messages.ERROR, msg)
+        return redirect(reverse('users:user', args=(user.username,)))
+    user.follow(target_user)
+    msg = _(f'You are following {username} !')
+    messages.success(request, msg)
+    return redirect(reverse('users:user', args=(user.username,)))
+
+
+@login_required
+def unfollow(request, username):
+    user = request.user
+    target_user = get_object_or_404(myUser, username=username)
+    if not user.is_following(target_user):
+        msg = _("You are not following this user!")
+        messages.add_message(request, messages.ERROR, msg)
+        return redirect(reverse('users:user', args=(user.username,)))
+    user.unfollow(target_user)
+    msg = _(f'You are not following {username} now !')
+    messages.success(request, msg)
+    return redirect(reverse('users:user', args=(user.username,)))

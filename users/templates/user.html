@@ -7,36 +7,56 @@
     {% if target_user == user%}
       {% include '_user_nav.html'%}
     {% endif %}
-    <div class="col-sm-10">
+    <div class="col-10">
       <div>
-        <h2>{% trans "Profile" %}</h2>
+        <h2>
+        {% if target_user == user %}
+          {% trans "My Profile" %}
+        {% else %}
+          {{ target_user }}'s {% trans "Profile" %}
+        {% endif %}
+        </h2>
         <hr>
       </div>
       <div>
         <div style='position: absolute'>
-            <a href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top"  title="{% trans 'Change Profile' %}">
-            <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256" class="rounded"></a>
-            <h2>{{ target_user.username }}</h2>
+            <a 
+            {% if user.is_authenticated and user == target_user %}
+              href="{% url 'users:profile' user.pk%}"  data-toggle="tooltip" data-placement="top" 
+            {% else %}
+              href="#"
+            {% endif %}
+            title="{% trans 'Change Profile' %}">
+          
+            <img src="{{ target_user.avatar.url }}" alt="{% trans "avatar" %}" width="256" height="256" class="rounded">
+          </a>
+            <h2 class="my-3">{{ target_user.username }}</h2>
+            {% if target_user.name != '' %}
+            <h4 class="text-secondary my-3">{{ target_user.name }}</h4>  
+            {% endif %}
             {% if user.is_authenticated%}
               {% if target_user == user %}
                 <a href="{% url 'users:profile' user.pk%}" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
               {% else%}
                 {% if follow_flag %}
-                  <a href="#" class="btn btn-outline-primary btn-block">{% trans "Follow" %}</a> 
+                  <a href="{% url 'users:follow' target_user.username %}" class="btn btn-outline-primary btn-block">{% trans "Follow" %}</a> 
                 {% else %}
-                  <a href="#" class="btn btn-outline-primary btn-block">{% trans "Unfollow" %}</a> 
+                  <a href="{% url 'users:unfollow' target_user.username %}" class="btn btn-outline-dark btn-block">{% trans "Unfollow" %}</a> 
                 {% endif %}
               {% endif%} 
             {% endif%}
         </div>
         <div style="margin-left: 280px;">
           <div>
-            <a href="{% url 'users:followed'%}" class="mx-3">{% trans 'Following'%}: <span class="badge badge-dark">{{followed}}</span></a>
-            <a href="{% url 'users:follower'%}" class="mx-3">{% trans 'Follower'%}: <span class="badge badge-info">{{follower}}</span></a>
-            <a href="#" class="mx-3">{% trans 'Blog'%}: <span class="badge badge-success">2</span></a>
+            <a href="{% url 'users:followed' target_user.username %}" class="mx-3 text-muted">{% trans 'Following'%}: <span class="badge badge-dark">{{followed}}</span></a>
+            <a href="{% url 'users:follower' target_user.username %}" class="mx-3 text-muted">{% trans 'Follower'%}: <span class="badge badge-info">{{follower}}</span></a>
+            <a href="#" class="mx-3 text-muted">{% trans 'Blog'%}: <span class="badge badge-success">2</span></a>
             {% if user.is_authenticated%}
               {% if followed_flag%}
                 | <span class='badge badge-primary'>{% trans 'Follows you'%}</span>
+              {% endif %}
+              {% if not follow_flag%}
+                | <span class='badge badge-primary'>{% trans 'Followed'%}</span>
               {% endif %}
             {% endif %}
             <hr>
@@ -52,12 +72,11 @@
         </div>
       </div>
     </div>
-  </div>
 </div>
 
-<!-- <script>
+<script>
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
 });
-</script> -->
+</script>
 {% endblock %}

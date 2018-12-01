@@ -5,3 +5,21 @@ div.pagination {
 .follow-name {
     font-size: 20px;
 }
+.menu{
+    background-color:#586069;border:1px solid #d1d5da;
+    border-radius:3px;list-style:none;
+    margin-bottom:15px;border-style: solid
+}
+.menu-heading{background-color:#f3f5f8;border-bottom:1px solid #e1e4e8;
+    color:#586069;display:block;font-size:13px;font-weight:600;
+    line-height:20px;margin-bottom:0;
+    margin-top:0;padding:8px 10px
+}
+.menu-item{border-bottom:1px solid #e1e4e8;
+    display:block;padding:8px 10px;
+    position:relative
+}
+.menu-item.selected{background-color:#fff;
+    color:#24292e;cursor:default;
+    font-weight:600
+}

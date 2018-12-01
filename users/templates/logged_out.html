@@ -2,8 +2,9 @@
 {% load static i18n bootstrap4 %}
 
 {% block content%}
-
-<p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
-
-<p><a href="{% url 'users:login' %}">{% trans 'Log in again' %}</a></p>
+<div class="jumbotron">
+  <h1 class="display-4">{% trans 'See You!'%}</h1>
+  <p class="lead">{% trans "Thanks for spending some quality time with the Web site today." %}</p>
+  <a class="btn btn-primary btn-lg center" href="{% url 'users:login' %}" role="button">{% trans 'Log in again' %}</a>
+</div>
 {% endblock%}

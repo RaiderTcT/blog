@@ -8,4 +8,6 @@ from django.conf import settings
 app_name = 'blog'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('mdeditor/add/', views.BlogCreate.as_view(), name='blog-add'),
+    path('mdeditor/<int:pk>/', views.BlogUpdate.as_view(), name='blog-edit'),
 ]

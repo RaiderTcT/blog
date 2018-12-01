@@ -4,25 +4,38 @@
 {% block content %}
 <div class="container-fluid">
   <div class="row">
-    {% include '_user_nav.html'%}
+    {% if target_user == user%}
+      {% include '_user_nav.html'%}
+    {% endif %}
     <div class="col-sm-10">
       <div>
-        <h2>{% trans "My Followed" %}</h2>
+        <h2>
+        {% if target_user == user %}
+          {% trans "My Followed" %}
+        {% else %}
+          {{ target_user }}'s {% trans "Followed" %}
+        {% endif %}
+        </h2>
         <hr>
       </div>
       <ul class="list-group">
         {% for follow in followed_list %}
           <li class="list-group-item">
             <div class="row">
-              <div class="col-sm-1">
+              <div class="col-1">
                 <a href="{% url 'users:user' follow.followed.username %}">
                   <img src="{{follow.followed.avatar.url}}" alt="{% trans 'Avatar'%}" width="50" height="50"  class='rounded'>
                 </a>
 
               </div>
-              <div class="col-sm">
+              <div class="col-2">
                 <span class="follow-name">{{ follow.followed.username}}</span>
+              </div>
+              {% if target_user == user %}
+              <div class="col offset-7">
+                <a href="{% url 'users:unfollow' follow.followed.username %}" class="btn btn-outline-dark">{% trans 'Unfollow'%}</a>
               </div>  
+              {% endif %}
             </div>
           </li>
         {% empty %}

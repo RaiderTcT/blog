@@ -4,10 +4,18 @@
 {% block content %}
   <div class="container-fluid">
   <div class="row">
-    {% include '_user_nav.html'%}
+    {% if target_user == user%}
+      {% include '_user_nav.html'%}
+    {% endif %}
     <div class="col-sm-10">
       <div>
-        <h2 class="test">{% trans "My Follower" %}</h2>
+        <h2>
+        {% if target_user == user %}
+          {% trans "My Follower" %}
+        {% else %}
+          {{ target_user }}'s {% trans "Follower" %}
+        {% endif %}
+        </h2>
         <hr>
       </div>
       <ul class="list-group">
