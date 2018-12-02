@@ -5,7 +5,7 @@ from mdeditor.fields import MDTextField
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.db.models.signals import pre_save
-
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
@@ -15,7 +15,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=20)
     date_added = models.DateTimeField(auto_now_add=True)
     last_modifiy = models.DateTimeField(auto_now=True)
-    text = MDTextField(blank=True)
+    text = MDTextField("", blank=True)
     html_content = models.TextField('html content', blank=True)
     public_flag = models.IntegerField(default=1)  # 0 private  1 public
     published_flag = models.IntegerField(default=0)  # 0 草稿 1 已发表 2 回收站

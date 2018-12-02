@@ -50,7 +50,7 @@
           <div>
             <a href="{% url 'users:followed' target_user.username %}" class="mx-3 text-muted">{% trans 'Following'%}: <span class="badge badge-dark">{{followed}}</span></a>
             <a href="{% url 'users:follower' target_user.username %}" class="mx-3 text-muted">{% trans 'Follower'%}: <span class="badge badge-info">{{follower}}</span></a>
-            <a href="#" class="mx-3 text-muted">{% trans 'Blog'%}: <span class="badge badge-success">2</span></a>
+            <a href="{% url 'blog:blog-list' target_user.username %}" class="mx-3 text-muted">{% trans 'Blog'%}: <span class="badge badge-success">{{ blog_num }}</span></a>
             {% if user.is_authenticated%}
               {% if followed_flag%}
                 | <span class='badge badge-primary'>{% trans 'Follows you'%}</span>

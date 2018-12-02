@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static i18n bootstrap4%}
+{% block content %}
+<p>{{article.title}} {{article.last_modifiy}}</p>
+{% if article.html_content %}
+  <div>
+    {{article.html_content | safe}}
+  </div>
+{% else %}
+  <div>
+    {{article.text}}
+  </div>
+{% endif %}
+{% endblock%}

@@ -114,8 +114,9 @@ def user(request, user_username):
     # user = request.user
     followed = target_user.followed.count()
     follower = target_user.follower.count()
+    blog_num = target_user.blog.count()
     context = {'target_user': target_user, 'followed': followed,
-               'follower': follower}
+               'follower': follower, 'blog_num': blog_num}
     if request.user.is_authenticated and request.user != target_user:
         follow_flag = False if request.user.is_following(target_user) else True
         followed_flag = True if target_user.is_following(request.user) else False

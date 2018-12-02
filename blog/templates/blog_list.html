@@ -1,0 +1,26 @@
+{% extends 'base.html'%}
+{% load static i18n bootstrap4%}
+{% block title%}{{title}} {% endblock%}
+{% block content%}
+{% for blog in blog_list %}
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class='row'>
+        <div class='col-md-3'>
+          <p><a href="{% url 'blog:blog-edit' blog.id%}" class='text-muted'><b>{{blog.title}}</b></a></p>
+          <p class="text-secondary">{{blog.author.username}}</p>
+          <p>{{blog.last_modifiy}}</p>   
+        </div>
+        <div class="col-md-2 offset-md-7 my-auto">
+          <a href="{% url 'blog:article' blog.id %}" class="btn btn-outline-dark">{% trans 'View'%}</a>
+          {% if blog.author == user%}
+          <a href="#" class="btn btn-outline-danger">{% trans 'Delete'%}</a>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+  </ul>
+{% empty %}
+    <p>{% trans "No article yet" %}</p>
+{% endfor%}
+{% endblock%}
