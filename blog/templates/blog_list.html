@@ -2,25 +2,77 @@
 {% load static i18n bootstrap4%}
 {% block title%}{{title}} {% endblock%}
 {% block content%}
+<div class="container-fluid">
+  <div class="row">
+    {% if target_user == user%}
+      {% include '_user_nav.html'%}
+    {% endif %}  
+<div class="col-sm-10">
 {% for blog in blog_list %}
   <ul class="list-group">
     <li class="list-group-item">
       <div class='row'>
         <div class='col-md-3'>
-          <p><a href="{% url 'blog:blog-edit' blog.id%}" class='text-muted'><b>{{blog.title}}</b></a></p>
-          <p class="text-secondary">{{blog.author.username}}</p>
+          <p> 
+            {% if blog.author == user %}
+            <span class="badge badge-dark"> 
+          {% if blog.published_flag == 1 %}
+            {% if blog.public_flag %}
+              {% trans 'Public' %}
+            {% else %}
+              {% trans 'Private' %}
+            {% endif %}
+          {% elif blog.published_flag == 0%}
+            {% trans 'Draft'%}
+          {% else %}
+            {% trans 'Deleted'%}
+          {% endif %}
+          </span>
+            {% endif%}
+          <a href="{% url 'blog:article' blog.id%}" class='text-muted'><b>{{blog.title}}</b></a></p>
           <p>{{blog.last_modifiy}}</p>   
         </div>
-        <div class="col-md-2 offset-md-7 my-auto">
-          <a href="{% url 'blog:article' blog.id %}" class="btn btn-outline-dark">{% trans 'View'%}</a>
-          {% if blog.author == user%}
-          <a href="#" class="btn btn-outline-danger">{% trans 'Delete'%}</a>
-          {% endif %}
+        {% if blog.author == user%}
+        <div class="col-md-1 offset-md-5 my-auto">
+          <a href="{% url 'blog:blog-edit' blog.id %}" class="btn btn-outline-dark">{% trans 'Edit'%}</a>
         </div>
+        
+          {% if blog.published_flag == 0 %}
+        <div class="col-md-1  m-auto">
+          <div class="dropdown">
+            <button type="button" class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown">
+              {% trans 'Post'%}
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'blog:public' blog.id %}">{% trans 'Public'%}</a>
+              <a class="dropdown-item" href="{% url 'blog:private' blog.id %}">{% trans 'Private'%}</a>
+            </div>
+          </div>
+        </div>
+          {% elif blog.published_flag == 1 %}
+        <div class="col-md-1 m-auto">
+          <a href="{% url 'blog:cancel' blog.id %}" class='btn btn-outline-warning'>{% trans "Withdraw"%}</a>
+        </div>
+          {% endif %}
+
+          {% if blog.published_flag == 2 %}
+        <div class="col-md-1 m-auto">
+          <a href="{% url 'blog:recover' blog.id %}" class="btn btn-outline-primary">{% trans 'Recover'%}</a>
+        </div>  
+          {% else %}
+        <div class="col-md-1 m-auto">
+          <a href="{% url 'blog:trash' blog.id %}" class="btn btn-outline-danger">{% trans 'Delete'%}</a>
+        </div>
+          {% endif %}
+        {% endif %}
       </div>
     </li>
   </ul>
 {% empty %}
     <p>{% trans "No article yet" %}</p>
 {% endfor%}
+</div>
+  </div>
+</div>
+{% bootstrap_pagination page_obj url='?page=1' size="middle" justify_content="center"%}
 {% endblock%}

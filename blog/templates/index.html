@@ -1,6 +1,22 @@
 {% extends 'base.html'%}
-{%load static i18n%}
-{% block title %}{% blocktrans %}Index{% endblocktrans %}{% endblock %}
+{% load static i18n bootstrap4%}
+{% block title%}{% trans 'Index'%}{% endblock%}
 {% block content%}
-    <p> {{name}} </p>
+{% for blog in blog_list %}
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class='row'>
+        <div class='col-md-3'>
+          <p><a href="{% url 'blog:article' blog.id%}" class='text-muted'><b>{{blog.title}}</b></a></p>
+          <a class="text-secondary" href="{% url 'users:user' blog.author.username %}">{{blog.author.username}}</a>
+          <p>{{blog.last_modifiy}}</p>   
+        </div>
+      </div>
+    </li>
+  </ul>
+{% empty %}
+    <p>{% trans "No article yet" %}</p>
+{% endfor%}
+
+{% bootstrap_pagination page_obj url='?page=1' size="middle" justify_content="center"%}
 {% endblock%}

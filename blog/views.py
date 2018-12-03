@@ -8,25 +8,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from users.models import myUser
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 # url = reverse('users:login')
-
-
-def index(request):
-
-    context = {'name': 'Mystie'}
-    url = reverse('users:login')
-    print(url)
-    # messages.add_message(request, "INFO", 'index')
-    return render(request, 'index.html', context)
 
 
 class BlogCreate(LoginRequiredMixin, CreateView):
     model = Blog
     fields = ['title', 'text']
     label = {'title': "", 'text': ""}
-    template_name = "mdeditor.html"
+    template_name = "create_blog.html"
 
     def form_valid(self, form):
         """Blog的作者"""
@@ -37,19 +29,21 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         return reverse('users:login')
 
     def get_success_url(self):
-        return reverse("users:user", args=(self.request.user.username,))
+        return reverse("blog:blog-list", args=(self.request.user.username,))
 
-    def get_context_data(self, **kwargs):
-        """向模板中传递标题"""
-        context = super().get_context_data(**kwargs)
-        context['title'] = _('Create Blog')
-        return context
+    # def get_context_data(self, **kwargs):
+    #     """向模板中传递标题"""
+    #     context = super().get_context_data(**kwargs)
+    #     context['web_title'] = _('Create Blog')
+    #     context['create'] = 1
+    #     return context
 
 
 class BlogUpdate(LoginRequiredMixin, UpdateView):
     model = Blog
     fields = ['title', 'text']
-    template_name = "mdeditor.html"
+    label = {'title': "", 'text': ""}
+    template_name = "update_blog.html"
 
     def form_valid(self, form):
         """Blog的作者"""
@@ -60,13 +54,14 @@ class BlogUpdate(LoginRequiredMixin, UpdateView):
         return reverse('users:login')
 
     def get_success_url(self):
-        return reverse("users:user", args=(self.request.user.username,))
+        return reverse("blog:blog-list", args=(self.request.user.username,))
 
-    def get_context_data(self, **kwargs):
-        """向模板中传递标题"""
-        context = super().get_context_data(**kwargs)
-        context['title'] = _('Edit Blog')
-        return context
+    # def get_context_data(self, **kwargs):
+    #     """向模板中传递标题"""
+    #     context = super().get_context_data(**kwargs)
+    #     context['web_title'] = _('Edit Blog')
+    #     context['create'] = 0
+    #     return context
 
     def get(self, request, *args, **kwargs):
         """ 尝试修改他人的blog时，重定向创建新Blog
@@ -102,16 +97,87 @@ class BlogList(ListView):
     paginate_by = 10
     paginate_orphans = 15
     context_object_name = 'blog_list'
+
+
+class UserBlogList(BlogList):
     template_name = 'blog_list.html'
 
     def get_queryset(self):
         self.article_user = get_object_or_404(myUser, username=self.kwargs['username'])
         queryset = Blog.objects.filter(author=self.article_user).order_by('-last_modifiy')
+        if self.article_user != self.request.user:
+            queryset = queryset.filter(published_flag=1, public_flag=1)
         return queryset
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         # Add in the publisher
-        context['title'] = _(f"{self.article_user.username}'s Blog")
+        context['title'] = _(f"{self.article_user.username}'s Blogs")
+        context['target_user'] = self.article_user
         return context
+
+
+class IndexView(BlogList):
+    template_name = 'index.html'
+
+    def get_queryset(self):
+        """获取所有公开的文章"""
+        queryset = Blog.objects.filter(published_flag=1).order_by('-last_modifiy')
+        return queryset
+
+
+@login_required
+def post_public(request, id):
+    """发布， 公开模式"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.publish()
+    blog.set_public()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+
+
+@login_required
+def post_private(request, id):
+    """发布， 公开模式"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.publish()
+    blog.set_private()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+
+
+@login_required
+def cancel(request, id):
+    """撤回"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.draft()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+
+
+@login_required
+def move_to_trash(request, id):
+    """移除到垃圾箱"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.move_to_trash()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+
+
+@login_required
+def recover(request, id):
+    """从垃圾箱回收到草稿箱"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.draft()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+
+
+@login_required
+def delete_blog_completely(request, id):
+    """从数据库中删除"""
+    blog = get_object_or_404(Blog, id=id, author=request.user)
+    blog.delete_blog_completely()
+    blog.save()
+    return redirect(reverse('blog:blog-list', args=(request.user.username,)))

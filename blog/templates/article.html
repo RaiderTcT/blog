@@ -1,14 +1,28 @@
 {% extends 'base.html' %}
 {% load static i18n bootstrap4%}
+{% block title%}{{article.title}} {% endblock%}
 {% block content %}
-<p>{{article.title}} {{article.last_modifiy}}</p>
-{% if article.html_content %}
-  <div>
-    {{article.html_content | safe}}
+<div class='card ' style="position: absolute;left: 10px;width:200px;">
+  <img class="card-img-top" src="{{ article.author.avatar.url }}" alt="{% trans 'Avatar' %}">
+  <div class='card-body'>
+    <a href="{% url 'users:user' article.author.username %}" class="card-title">{{article.author.username}}</a>
   </div>
-{% else %}
-  <div>
-    {{article.text}}
-  </div>
-{% endif %}
+</div>
+<div class="container-fluid">
+    <div>
+      <h1>{{article.title}}</h1>
+      <p class='text-secondary'>{{article.last_modifiy}}</p>
+      <hr>
+      {% if article.html_content %}
+        <div>
+          {{article.html_content | safe}}
+        </div>
+      {% else %}
+        <div>
+          {{article.text}}
+        </div>
+      {% endif %}    
+    </div>
+</div>
+ 
 {% endblock%}

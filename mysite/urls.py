@@ -21,4 +21,8 @@ urlpatterns = [
     path('', include('blog.urls', namespace='blog')),
     path('account/', include('users.urls', namespace='users')),
     path('admin/', admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('mdeditor/', include('mdeditor.urls')),
+]
+if settings.DEBUG:
+    # static files (images, css, javascript, etc.)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
