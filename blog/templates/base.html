@@ -33,7 +33,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="{% url 'blog:blog-add' %}">{% trans "New Blog" %}</a>
+          <a class="nav-link active" href="{% url 'blog:blog-add' %}" target='_blank'>{% trans "New Blog" %}</a>
         </li>
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
@@ -44,6 +44,8 @@
               <h4 class="dropdown-item">{{ user.username }}</h4>
               <div class="dropdown-divider" ></div>
               <a class= "dropdown-item" href="{% url 'blog:blog-list' user.username%}">{% trans 'My Blogs' %}</a>
+              <a class="dropdown-item" href="{% url 'blog:collection' %}">{% trans 'My Collection' %}</a>
+              <div class="dropdown-divider" ></div>
               <a class="dropdown-item" href="{% url 'users:user' user.username %}">{% trans "My Profile" %}</a>
               <a href="{% url 'users:password_change'%}" class="dropdown-item">{% trans "Update password"%}</a>
               <a href="{% url 'users:password_reset' %}" class="dropdown-item">{% trans "Password reset"%}</a>
@@ -59,9 +61,6 @@
             <a href="{% url 'users:register'%}" class="btn btn-outline-primary">{% trans "Sign up"%}</a>
           </li>
         {% endif %}
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
-        </li>
       </ul>
 
     </div>

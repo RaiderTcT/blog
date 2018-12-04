@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth import views as auth_views
 from django.views.generic.edit import CreateView, UpdateView, View, FormView
 from django.views.generic import ListView, DetailView
@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import permission_required, login_required
 from django.utils.decorators import method_decorator
+from blog.models import Blog
 
 # Create your views here.
 
@@ -193,10 +194,10 @@ def follow(request, username):
     if user.is_following(target_user):
         msg = _("You are already following this user !")
         messages.add_message(request, messages.ERROR, msg)
-        return redirect(reverse('users:user', args=(user.username,)))
-    user.follow(target_user)
-    msg = _(f'You are following {username} !')
-    messages.success(request, msg)
+    else:
+        user.follow(target_user)
+        msg = _(f'You are following {username} !')
+        messages.success(request, msg)
     return redirect(reverse('users:user', args=(user.username,)))
 
 
@@ -207,8 +208,33 @@ def unfollow(request, username):
     if not user.is_following(target_user):
         msg = _("You are not following this user!")
         messages.add_message(request, messages.ERROR, msg)
-        return redirect(reverse('users:user', args=(user.username,)))
-    user.unfollow(target_user)
-    msg = _(f'You are not following {username} now !')
-    messages.success(request, msg)
+    else:
+        user.unfollow(target_user)
+        msg = _(f'You are not following {username} now !')
+        messages.success(request, msg)
     return redirect(reverse('users:user', args=(user.username,)))
+
+
+@login_required
+def collect(request, blog_id):
+    user = request.user
+    blog = get_object_or_404(Blog, id=blog_id)
+    if blog.can_be_collected() and blog.author != user:
+        if user.is_collecting(blog):
+            msg = _("You have already colleted this blog !")
+            messages.add_message(request, messages.ERROR, msg)
+        else:
+            user.collect(blog)
+    return redirect(reverse('blog:collection'))
+
+
+@login_required
+def uncollect(request, blog_id):
+    user = request.user
+    blog = get_object_or_404(Blog, id=blog_id)
+    if not user.is_collecting(blog):
+        msg = _("You are not collecting this blog")
+        messages.error(request, msg)
+    else:
+        user.uncollect(blog)
+    return redirect(reverse('blog:collection'))

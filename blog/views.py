@@ -90,8 +90,16 @@ class Article(DetailView):
         obj = get_object_or_404(self.model, id=self.kwargs['article_id'])
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            collected = user.is_collecting(self.object)
+            context['collected'] = collected
+        return context
 
-class BlogList(ListView):
+
+class BlogListView(ListView):
     model = Blog
     fields = ['author', 'title']
     paginate_by = 10
@@ -99,7 +107,7 @@ class BlogList(ListView):
     context_object_name = 'blog_list'
 
 
-class UserBlogList(BlogList):
+class UserBlogListView(BlogListView):
     template_name = 'blog_list.html'
 
     def get_queryset(self):
@@ -118,13 +126,24 @@ class UserBlogList(BlogList):
         return context
 
 
-class IndexView(BlogList):
+class IndexView(BlogListView):
     template_name = 'index.html'
 
     def get_queryset(self):
         """获取所有公开的文章"""
         queryset = Blog.objects.filter(published_flag=1).order_by('-last_modifiy')
         return queryset
+
+
+class CollectionListView(LoginRequiredMixin, BlogListView):
+    template_name = "collection.html"
+
+    def get_login_url(self):
+        return reverse('users:login')
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.collection()
 
 
 @login_required

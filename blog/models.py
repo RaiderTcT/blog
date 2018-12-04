@@ -4,7 +4,7 @@ from markdown import markdown
 from mdeditor.fields import MDTextField
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
@@ -50,12 +50,29 @@ class Blog(models.Model):
         """设置为公开， 所有人可见"""
         self.public_flag = 1
 
+    def can_be_collected(self):
+        ret = False
+        if self.public_flag == 1 and self.published_flag == 1:
+            ret = True
+        return ret
+
+
+class Collection(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             unique=False, related_name="collect_user")
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE,
+                             unique=False, related_name="collect_blog")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
 
 # 只提交Markdown源文本，在服务器上进行转换
-# instance 正要被保存的Post对象实例
+# instance 正要被保存的Blog对象实例
 # update_fields 要更新的字段
 @receiver(pre_save, sender=Blog)
 def md_trans(sender, update_fields=None, instance=None, **kwargs):
     """在post文本提交时，进行markdown转html"""
     instance.html_content = markdown(instance.text, extensions=['markdown.extensions.extra', ])
     update_fields = ['html_content', ]
+
+# @receiver(post_save, sender=Blog)
+# def

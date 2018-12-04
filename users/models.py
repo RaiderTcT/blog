@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import reverse
 from django.conf import settings
+from blog.models import Blog, Collection
+from django.shortcuts import get_object_or_404
 # Create your models here.
 
 
@@ -33,7 +35,7 @@ class myUser(AbstractUser):
     bio = models.TextField(_('Tell us a little bit about yourself'), blank=True)
     profession = models.CharField(_("Profession"), max_length=20, blank=True)
     avatar = models.ImageField(_('avatar'), upload_to='avatar/%Y/%m/%d',
-                               default='avatar/wenhuang.jpg', blank=True, null=True)
+                               default='avatar/default.jpg', blank=True, null=True)
     # follower = models.ForeignKey('self', on_delete=models.CASCADE,
     #                              related_name='follower_user', blank=True, default='self')
     # following = models.ForeignKey('self', on_delete=models.CASCADE,
@@ -69,3 +71,25 @@ class myUser(AbstractUser):
             return False
         else:
             return self.followed.filter(followed=user).first() is not None
+
+    def is_collecting(self, blog):
+        if blog is None:
+            return False
+        else:
+            return self.collect_user.filter(blog=blog).first() is not None
+
+    def collect(self, blog):
+        if not self.is_collecting(blog):
+            c = Collection(user=self, blog=blog)
+            c.save()
+
+    def uncollect(self, blog):
+        c = self.collect_user.filter(blog=blog).first()
+        if c:
+            c.delete()
+
+    def collection(self):
+        queryset = []
+        for c in self.collect_user.all().order_by('-timestamp'):
+            queryset.append(c.blog)
+        return queryset

@@ -8,7 +8,7 @@
         <a class="nav-link" name='profile' href="{% url 'users:user' user.username%}#profile">{% trans "Profile" %}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">{% trans "Collection" %}</a>
+        <a class="nav-link" name='collection' href="{% url 'blog:collection'%}#collection">{% trans "Collection" %}</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" name='follower' href="{% url 'users:follower' user.username%}#follower" >{% trans "Follower" %}</a>

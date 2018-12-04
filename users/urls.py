@@ -15,4 +15,6 @@ urlpatterns = [
     path('following/<username>/', views.FollowedView.as_view(), name='followed'),
     path('follow/<username>/', views.follow, name='follow'),
     path('unfollow/<username>/', views.unfollow, name='unfollow'),
+    path('collect/<int:blog_id>/', views.collect, name='collect'),
+    path('uncollect/<int:blog_id>/', views.uncollect, name='uncollect'),
 ]

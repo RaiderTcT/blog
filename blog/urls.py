@@ -11,11 +11,13 @@ urlpatterns = [
     path('mdeditor/', views.BlogCreate.as_view(), name='blog-add'),
     path('mdeditor/<int:pk>/', views.BlogUpdate.as_view(), name='blog-edit'),
     path('article/<int:article_id>', views.Article.as_view(), name='article'),
-    path('article/<username>/', views.UserBlogList.as_view(), name="blog-list"),
+    path('article/<username>/', views.UserBlogListView.as_view(), name="blog-list"),
     path('post/public/<int:id>', views.post_public, name='public'),
     path('post/private/<int:id>', views.post_private, name='private'),
     path('cancel/<int:id>', views.cancel, name='cancel'),
     path('trash/<int:id>', views.move_to_trash, name='trash'),
     path('delete/<int:id>', views.delete_blog_completely, name='delete'),
     path('recover/<int:id>', views.recover, name='recover'),
+    path("collection/", views.CollectionListView.as_view(), name='collection'),
+
 ]

@@ -5,13 +5,24 @@
 <div class='card ' style="position: absolute;left: 10px;width:200px;">
   <img class="card-img-top" src="{{ article.author.avatar.url }}" alt="{% trans 'Avatar' %}">
   <div class='card-body'>
-    <a href="{% url 'users:user' article.author.username %}" class="card-title">{{article.author.username}}</a>
+    <a href="{% url 'users:user' article.author.username %}" class="card-link" target='_blank'>{{article.author.username}}</a>
+    <a href="{% url 'users:follow' article.author %}" class="card-link">{% trans "Follow" %}</a>
   </div>
 </div>
-<div class="container-fluid">
+<div class="container" style="position: absolute; left: 224px;">
     <div>
       <h1>{{article.title}}</h1>
-      <p class='text-secondary'>{{article.last_modifiy}}</p>
+      <p class='text-secondary'>{{article.last_modifiy}}
+        {% if article.author == user %}
+        <a class='mx-5 text-muted' href="{% url 'blog:blog-edit' article.id %}">{% trans 'Edit '%}</a>
+        {% elif user.is_authenticated %}
+          {% if collected %}
+            <span class='mx-5 badge badge-primary'>{% trans 'Collected' %}</span>
+          {% else %}
+            <a class='mx-5 text-muted' href="{% url 'users:collect' article.id %}">{% trans 'Collect '%}</a>    
+          {% endif %}
+        {% endif%}
+      </p>
       <hr>
       {% if article.html_content %}
         <div>
