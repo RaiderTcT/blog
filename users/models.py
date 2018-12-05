@@ -93,3 +93,33 @@ class myUser(AbstractUser):
         for c in self.collect_user.all().order_by('-timestamp'):
             queryset.append(c.blog)
         return queryset
+
+    def get_public_num(self):
+        return self.blog.filter(public_flag=1, published_flag=1).count()
+
+    def get_public(self):
+        return self.blog.filter(public_flag=1, published_flag=1).all().order_by('-last_modifiy')
+
+    def get_private_num(self):
+        return self.blog.filter(public_flag=0, published_flag=1).count()
+
+    def get_private(self):
+        return self.blog.filter(public_flag=0, published_flag=1).all().order_by('-last_modifiy')
+
+    def get_draft_num(self):
+        return self.blog.filter(published_flag=0).count()
+
+    def get_draft(self):
+        return self.blog.filter(published_flag=0).all().order_by('-last_modifiy')
+
+    def get_trash_num(self):
+        return self.blog.filter(published_flag=2).count()
+
+    def get_trash(self):
+        return self.blog.filter(published_flag=2).all().order_by('-last_modifiy')
+
+    def get_all_num(self):
+        return self.blog.exclude(published_flag=2).count()
+
+    def get_all(self):
+        return self.blog.exclude(published_flag=2).order_by('-last_modifiy')

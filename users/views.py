@@ -115,7 +115,7 @@ def user(request, user_username):
     # user = request.user
     followed = target_user.followed.count()
     follower = target_user.follower.count()
-    blog_num = target_user.blog.count()
+    blog_num = target_user.get_public_num()
     context = {'target_user': target_user, 'followed': followed,
                'follower': follower, 'blog_num': blog_num}
     if request.user.is_authenticated and request.user != target_user:
@@ -212,7 +212,7 @@ def unfollow(request, username):
         user.unfollow(target_user)
         msg = _(f'You are not following {username} now !')
         messages.success(request, msg)
-    return redirect(reverse('users:user', args=(user.username,)))
+    return redirect(reverse('users:followed', args=(user.username,)))
 
 
 @login_required

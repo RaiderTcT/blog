@@ -1,6 +1,7 @@
 {% load i18n%}
 <div class='col-2'>
   <!-- 通过删除 .navbar-expand-xl|lg|md|sm 类来创建垂直导航栏: -->
+  <br>
   <nav class="nav navbar-light">
 
     <ul class="navbar-nav mr-auto ">
@@ -16,9 +17,8 @@
       <li class="nav-item">
         <a class="nav-link" name='followed' href="{% url 'users:followed' user.username%}#followed">{% trans "Following" %}</a>
       </li>
-      
       <li class="nav-item">
-        <a class="nav-link" name='blog' href="{% url 'blog:blog-list' user.username %}#blog ">{% trans "Blog" %}</a>
+        <a class="nav-link" name='blog' href="{% url 'blog:postlist' %}">{% trans "Blog Management" %}</a>
       </li>
     </ul>
   </nav>

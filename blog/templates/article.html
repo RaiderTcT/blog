@@ -6,7 +6,7 @@
   <img class="card-img-top" src="{{ article.author.avatar.url }}" alt="{% trans 'Avatar' %}">
   <div class='card-body'>
     <a href="{% url 'users:user' article.author.username %}" class="card-link" target='_blank'>{{article.author.username}}</a>
-    <a href="{% url 'users:follow' article.author %}" class="card-link">{% trans "Follow" %}</a>
+    <a href="{% url 'users:follow' article.author.username %}" class="card-link">{% trans "Follow" %}</a>
   </div>
 </div>
 <div class="container" style="position: absolute; left: 224px;">

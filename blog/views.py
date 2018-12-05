@@ -29,7 +29,7 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         return reverse('users:login')
 
     def get_success_url(self):
-        return reverse("blog:blog-list", args=(self.request.user.username,))
+        return reverse("blog:post-list")
 
     # def get_context_data(self, **kwargs):
     #     """向模板中传递标题"""
@@ -54,7 +54,7 @@ class BlogUpdate(LoginRequiredMixin, UpdateView):
         return reverse('users:login')
 
     def get_success_url(self):
-        return reverse("blog:blog-list", args=(self.request.user.username,))
+        return reverse("blog:article", args=(self.get_object().id,))
 
     # def get_context_data(self, **kwargs):
     #     """向模板中传递标题"""
@@ -100,10 +100,8 @@ class Article(DetailView):
 
 
 class BlogListView(ListView):
-    model = Blog
-    fields = ['author', 'title']
-    paginate_by = 10
-    paginate_orphans = 15
+    paginate_by = 7
+    paginate_orphans = 0
     context_object_name = 'blog_list'
 
 
@@ -113,11 +111,11 @@ class UserBlogListView(BlogListView):
     def get_queryset(self):
         self.article_user = get_object_or_404(myUser, username=self.kwargs['username'])
         queryset = Blog.objects.filter(author=self.article_user).order_by('-last_modifiy')
-        if self.article_user != self.request.user:
-            queryset = queryset.filter(published_flag=1, public_flag=1)
+        queryset = queryset.filter(published_flag=1, public_flag=1)
         return queryset
 
     def get_context_data(self, **kwargs):
+
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         # Add in the publisher
@@ -146,6 +144,55 @@ class CollectionListView(LoginRequiredMixin, BlogListView):
         return user.collection()
 
 
+class PostListView(LoginRequiredMixin, BlogListView):
+    template_name = 'post_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['private_num'] = self.request.user.get_private_num()
+        context['public_num'] = self.request.user.get_public_num()
+        context['draft_num'] = self.request.user.get_draft_num()
+        context['trash_num'] = self.request.user.get_trash_num()
+        context['all_num'] = self.request.user.get_all_num()
+        return context
+
+
+class PostListAllView(PostListView):
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.get_all()
+        return queryset
+
+
+class PostListPublicView(PostListView):
+
+    def get_queryset(self):
+        queryset = self.request.user.get_public()
+        return queryset
+
+
+class PostListPrivateView(PostListView):
+
+    def get_queryset(self):
+        queryset = self.request.user.get_private()
+        return queryset
+
+
+class PostListDraftView(PostListView):
+
+    def get_queryset(self):
+        queryset = self.request.user.get_draft()
+        return queryset
+
+
+class PostListTrashView(PostListView):
+
+    def get_queryset(self):
+        queryset = self.request.user.get_trash()
+        return queryset
+
+
 @login_required
 def post_public(request, id):
     """发布， 公开模式"""
@@ -153,7 +200,7 @@ def post_public(request, id):
     blog.publish()
     blog.set_public()
     blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist-public'))
 
 
 @login_required
@@ -163,7 +210,7 @@ def post_private(request, id):
     blog.publish()
     blog.set_private()
     blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist-private'))
 
 
 @login_required
@@ -172,7 +219,7 @@ def cancel(request, id):
     blog = get_object_or_404(Blog, id=id, author=request.user)
     blog.draft()
     blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist-draft'))
 
 
 @login_required
@@ -181,7 +228,7 @@ def move_to_trash(request, id):
     blog = get_object_or_404(Blog, id=id, author=request.user)
     blog.move_to_trash()
     blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist-trash'))
 
 
 @login_required
@@ -190,7 +237,7 @@ def recover(request, id):
     blog = get_object_or_404(Blog, id=id, author=request.user)
     blog.draft()
     blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist-draft'))
 
 
 @login_required
@@ -198,5 +245,4 @@ def delete_blog_completely(request, id):
     """从数据库中删除"""
     blog = get_object_or_404(Blog, id=id, author=request.user)
     blog.delete_blog_completely()
-    blog.save()
-    return redirect(reverse('blog:blog-list', args=(request.user.username,)))
+    return redirect(reverse('blog:postlist'))

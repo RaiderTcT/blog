@@ -1,0 +1,60 @@
+     {% load static i18n bootstrap4%}
+      <ul class="list-group my-auto">
+        <li class="list-group-item">
+          <div class='row'>
+            <div class='col-md-3'>
+              <p> 
+                <span class="badge badge-dark"> 
+                  {% if blog.published_flag == 1 %}
+                    {% if blog.public_flag %}
+                      {% trans 'Public' %}
+                    {% else %}
+                      {% trans 'Private' %}
+                    {% endif %}
+                  {% elif blog.published_flag == 0%}
+                    {% trans 'Draft'%}
+                  {% else %}
+                    {% trans 'Trash'%}
+                  {% endif %}
+                </span>
+              <a href="{% url 'blog:article' blog.id%}" class='text-muted' target='_blank'><b>{{blog.title}}</b></a></p>
+              <p>{{blog.last_modifiy}}</p>   
+            </div>
+            {% if blog.published_flag != 2%}
+            <div class="col-md-1 offset-md-5 my-auto">
+              <a href="{% url 'blog:blog-edit' blog.id%}" class="btn btn-outline-dark" target='_blank'>{% trans 'Edit'%}</a>
+            </div>
+            {% endif%}
+            {% if blog.published_flag == 0 %}
+            <div class="col-md-1  m-auto">
+              <div class="dropdown">
+                <button type="button" class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown">
+                  {% trans 'Post'%}
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="{% url 'blog:public' blog.id %}">{% trans 'Public'%}</a>
+                  <a class="dropdown-item" href="{% url 'blog:private' blog.id %}">{% trans 'Private'%}</a>
+                </div>
+              </div>
+            </div>
+            {% elif blog.published_flag == 1 %}
+            <div class="col-md-1 m-auto">
+              <a href="{% url 'blog:cancel' blog.id%}" class='btn btn-outline-warning'>{% trans "Withdraw"%}</a>
+            </div>
+            {% endif %}
+
+            {% if blog.published_flag == 2 %}
+            <div class="col-md-1 offset-md-5 my-auto">
+              <a href="{% url 'blog:recover' blog.id%}" class="btn btn-outline-primary">{% trans 'Recover'%}</a>
+            </div>
+            <div class="col-md-2 m-auto">
+              <a href="{% url 'blog:delete' blog.id%}" class="btn btn-outline-danger">{% trans 'Delete Completely'%}</a>
+            </div>
+            {% else %}
+            <div class="col-md-1 m-auto">
+              <a href="{% url 'blog:trash' blog.id%}" class="btn btn-outline-danger">{% trans 'Delete'%}</a>
+            </div>
+            {% endif %}
+          </div>
+        </li>
+      </ul>

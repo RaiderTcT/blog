@@ -56,6 +56,8 @@ class Blog(models.Model):
             ret = True
         return ret
 
+    def get_comment(self):
+        return self.comment.all().order_by('-timestamp')
 
 class Collection(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -64,6 +66,14 @@ class Collection(models.Model):
                              unique=False, related_name="collect_blog")
     timestamp = models.DateTimeField(auto_now_add=True)
 
+
+class Comment(models.Model):
+    text = models.TextField()
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                               unique=False, related_name='user_comment')
+    blog = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='comment')
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 # 只提交Markdown源文本，在服务器上进行转换
 # instance 正要被保存的Blog对象实例

@@ -181,7 +181,7 @@ STATICFILES_FINDERS = (
 AUTH_USER_MODEL = 'users.myUser'
 
 # login_required 默认重定向url
-LOGIN_URL = 'account/login/'
+LOGIN_URL = '/account/signin/'
 # LoginView POST请求没有 next时 默认重定向到
 LOGIN_REDIRECT_URL = "/"
 
