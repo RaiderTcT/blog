@@ -5,6 +5,7 @@ from django.shortcuts import reverse
 from django.conf import settings
 from blog.models import Blog, Collection
 from django.shortcuts import get_object_or_404
+from .tokens import token_generator
 # Create your models here.
 
 
@@ -36,10 +37,12 @@ class myUser(AbstractUser):
     profession = models.CharField(_("Profession"), max_length=20, blank=True)
     avatar = models.ImageField(_('avatar'), upload_to='avatar/%Y/%m/%d',
                                default='avatar/default.jpg', blank=True, null=True)
+
     # follower = models.ForeignKey('self', on_delete=models.CASCADE,
     #                              related_name='follower_user', blank=True, default='self')
     # following = models.ForeignKey('self', on_delete=models.CASCADE,
     #                               related_name='following_user', blank=True, default='self')
+    has_confirmed = models.BooleanField(default=False)
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'

@@ -6,7 +6,13 @@
   <img class="card-img-top" src="{{ article.author.avatar.url }}" alt="{% trans 'Avatar' %}">
   <div class='card-body'>
     <a href="{% url 'users:user' article.author.username %}" class="card-link" target='_blank'>{{article.author.username}}</a>
-    <a href="{% url 'users:follow' article.author.username %}" class="card-link">{% trans "Follow" %}</a>
+    {% if article.author != user %}
+    {% if not following_flag  %}
+      <a href="{% url 'users:follow' article.author.username %}" class="card-link">{% trans "Follow" %}</a>
+    {% else %}
+      <span class='mx-2 badge badge-pill badge-primary'>{% trans 'Followed' %}</span>  
+    {% endif %}
+    {% endif %}
   </div>
 </div>
 <div class="container" style="position: absolute; left: 224px;">
@@ -17,7 +23,7 @@
         <a class='mx-5 text-muted' href="{% url 'blog:blog-edit' article.id %}">{% trans 'Edit '%}</a>
         {% elif user.is_authenticated %}
           {% if collected %}
-            <span class='mx-5 badge badge-primary'>{% trans 'Collected' %}</span>
+            <span class='mx-5 badge badge-pill badge-primary'>{% trans 'Collected' %}</span>
           {% else %}
             <a class='mx-5 text-muted' href="{% url 'users:collect' article.id %}">{% trans 'Collect '%}</a>    
           {% endif %}
@@ -32,7 +38,33 @@
         <div>
           {{article.text}}
         </div>
-      {% endif %}    
+      {% endif %} 
+
+      <hr>
+
+      <div>
+        <form action="{% url 'blog:article' article.id%}" method="post">
+          {% csrf_token%}
+          {% bootstrap_form form%}
+          <input type="submit" value="{%  trans 'Comment' %}" class='btn btn-outline-primary'>
+        </form>
+      </div>
+
+      <hr>
+
+      {% for comment in comments %}
+        <ul class="media" id="comments">
+          <li class="media my-4">
+            <a href="{% url 'users:user' comment.author.username %}" target="_blank"><img class="rounded-circle" src="{{ comment.author.avatar.url }}" width="40" height="40"></a>
+            <div class="media-body">
+              <h5 class="mt-0 mb-0">{{comment.author.username}} <small class="text-secondary">{{comment.timestamp}}</small></h5>
+              {{comment.text}}
+            </div>
+          </li>
+        </ul>
+      {% endfor %}   
+
+      {% bootstrap_pagination comments url="?page=1" size="middle" justify_content="center" %}
     </div>
 </div>
  

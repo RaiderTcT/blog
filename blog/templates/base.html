@@ -5,7 +5,7 @@
 
     <link rel="shortcut icon" href="{% static 'img/dj.ico' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <title>{% block title %}My amazing site{% endblock %}</title>
 <!--     <link rel="stylesheet" href="/static/css/bootstrap.css">
     <script src="/static/js/bootstrap.min.js"></script>
@@ -24,14 +24,14 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <form class="form-inline my-2 my-lg-0" action="#" method="post">
+      <form class="form-inline my-2 my-lg-0" action="{% url 'blog:search'%}" method="get" >
         {% csrf_token %}
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="key_word">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query" required>
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">{% trans "Search" %}</button>
       </form>
-      <ul class="navbar-nav mr-auto">
+      <ul class="navbar-nav myr-auto">
         <li class="nav-item active">
-          <a class="nav-link active" href="{% url 'blog:index'%}">{% trans "Home" %} <span class="sr-only">(current)</span></a>
+          <a class="nav-link active my-auto" href="{% url 'blog:index'%}"><i class="fas fa-home"> {% trans "Home" %}</i> <span class="sr-only">(current)</span></a>
         </li>
 
         <li class="nav-item">
@@ -39,8 +39,8 @@
         </li>
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id='navbardrop' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
-              <img src="{{ user.avatar.url }} " width="35" height="35" class="rounded" />
+            <a class="nav-link " href="#" id='navbardrop' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+              <img src="{{ user.avatar.url }} " width="35" height="35" class="rounded dropdown-toggle" />
             </a>
             <div class="dropdown-menu">
               <h4 class="dropdown-item">{{ user.username }}</h4>

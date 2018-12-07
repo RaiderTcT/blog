@@ -18,12 +18,12 @@ class RegisterForm(UserCreationForm):
         field_classes = {'username': UsernameField}
 
 
-class ProfileForm(ModelForm):
+# class ProfileForm(ModelForm):
 
-    class Meta:
-        model = myUser
-        labels = {'bio': "Tell us a little bit about yourself"}
-        fields = ['name', 'email', 'location', 'profession', 'bio']
-        widgets = {
+#     class Meta:
+#         model = myUser
+#         labels = {'bio': "Tell us a little bit about yourself"}
+#         fields = ['name', 'email', 'location', 'profession', 'bio']
+#         widgets = {
 
-        }
+#         }

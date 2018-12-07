@@ -38,7 +38,7 @@
               {% if target_user == user %}
                 <a href="{% url 'users:profile' user.pk%}" class="btn btn-outline-primary btn-block ">{% trans "Edit profile" %}</a>    
               {% else%}
-                {% if follow_flag %}
+                {% if not follow_traget %}
                   <a href="{% url 'users:follow' target_user.username %}" class="btn btn-outline-primary btn-block">{% trans "Follow" %}</a> 
                 {% else %}
                   <a href="{% url 'users:unfollow' target_user.username %}" class="btn btn-outline-dark btn-block">{% trans "Unfollow" %}</a> 
@@ -48,15 +48,15 @@
         </div>
         <div style="margin-left: 280px;">
           <div>
-            <a href="{% url 'users:followed' target_user.username %}" class="mx-3 text-muted">{% trans 'Following'%}: <span class="badge badge-dark">{{followed}}</span></a>
-            <a href="{% url 'users:follower' target_user.username %}" class="mx-3 text-muted">{% trans 'Follower'%}: <span class="badge badge-info">{{follower}}</span></a>
-            <a href="{% url 'blog:blog-list' target_user.username %}" class="mx-3 text-muted">{% trans 'Blog'%}: <span class="badge badge-success">{{ blog_num }}</span></a>
+            <a href="{% url 'users:followed' target_user.username %}" class="mx-3 text-muted">{% trans 'Following'%}: <span class="badge  badge-pill badge-dark">{{followed}}</span></a>
+            <a href="{% url 'users:follower' target_user.username %}" class="mx-3 text-muted">{% trans 'Follower'%}: <span class="badge  badge-pill badge-info">{{follower}}</span></a>
+            <a href="{% url 'blog:blog-list' target_user.username %}" class="mx-3 text-muted">{% trans 'Blog'%}: <span class="badge badge-pill badge-success">{{ blog_num }}</span></a>
             {% if user.is_authenticated%}
-              {% if followed_flag%}
-                | <span class='badge badge-primary'>{% trans 'Follows you'%}</span>
+              {% if target_follow%}
+                | <span class='badge badge-pill badge-primary'>{% trans 'Follows you'%}</span>
               {% endif %}
-              {% if not follow_flag%}
-                | <span class='badge badge-primary'>{% trans 'Followed'%}</span>
+              {% if follow_traget%}
+                | <span class='badge badge-pill badge-success'>{% trans 'Followed'%}</span>
               {% endif %}
             {% endif %}
             <hr>

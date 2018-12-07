@@ -15,9 +15,11 @@
         <a class='text-muted mx-4' href="{% url 'blog:postlist-trash'%}">{% trans 'TRASH'%}({{trash_num}})</a>
       </div>
       <hr>
+      <ul class="list-group">
       {% for blog in blog_list%}
         {% include '_post.html'%}
       {% endfor%}
+      </ul>
     </div>
   </div>
 </div>

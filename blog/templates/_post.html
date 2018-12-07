@@ -1,6 +1,5 @@
      {% load static i18n bootstrap4%}
-      <ul class="list-group my-auto">
-        <li class="list-group-item">
+        <li class="list-group-item ">
           <div class='row'>
             <div class='col-md-3'>
               <p> 
@@ -18,7 +17,6 @@
                   {% endif %}
                 </span>
               <a href="{% url 'blog:article' blog.id%}" class='text-muted' target='_blank'><b>{{blog.title}}</b></a></p>
-              <p>{{blog.last_modifiy}}</p>   
             </div>
             {% if blog.published_flag != 2%}
             <div class="col-md-1 offset-md-5 my-auto">
@@ -56,5 +54,10 @@
             </div>
             {% endif %}
           </div>
+          <div class='row'>
+            <span class="col-md-3">{{blog.last_modifiy}}</span>
+            <i class="col-md-1 fas fa-star">{{blog.get_collected_num}}</i> 
+            <a class='col-md-1 text-muted' href="{% url 'blog:article' blog.id  %}#comments"><i class=" fas fa-comment-dots"> {{blog.get_comment_num}}</i></a>    
+          </div>
         </li>
-      </ul>
+        <hr>

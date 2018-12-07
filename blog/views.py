@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
-from .models import Blog
+from .models import Blog, Comment
+from .forms import CommentForm
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, ListView, CreateView, DeleteView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,6 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from users.models import myUser
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.core.paginator import Paginator, InvalidPage
+from django.db.models import Q
 # Create your views here.
 
 # url = reverse('users:login')
@@ -80,23 +84,59 @@ class BlogUpdate(LoginRequiredMixin, UpdateView):
         return response
 
 
-class Article(DetailView):
-    model = Blog
-    fields = ['title', 'html_content', 'author']
-    context_object_name = 'article'
+class BlogCommentView(View):
+    """文章正文显示 包括 发表评论 评论显示"""
     template_name = 'article.html'
+    form_class = CommentForm
 
-    def get_object(self):
-        obj = get_object_or_404(self.model, id=self.kwargs['article_id'])
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        article = get_object_or_404(Blog, id=kwargs['article_id'])
+        comment_list = article.get_comment()
+        paginator = Paginator(comment_list, 8)
+        page = request.GET.get('page', 1)
+        comments = paginator.get_page(page)
         user = self.request.user
+        following_flag = False
+        collected = False
         if user.is_authenticated:
-            collected = user.is_collecting(self.object)
-            context['collected'] = collected
-        return context
+            following_flag = True if request.user.is_following(article.author) else False
+            collected = user.is_collecting(article)
+        context = {'form': form, 'article': article, 'following_flag': following_flag,
+                   'comments': comments, "collected": collected}
+
+        return render(request, self.template_name, context)
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        article = get_object_or_404(Blog, id=kwargs['article_id'])
+        if form.is_valid():
+            form.instance.author = request.user
+            form.instance.blog = article
+            form.save()
+            return redirect(reverse('blog:article', args=(article.id,)))
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
+
+# class Article(DetailView):
+#     model = Blog
+#     fields = ['title', 'html_content', 'author']
+#     context_object_name = 'article'
+#     template_name = 'article.html'
+
+#     def get_object(self):
+#         obj = get_object_or_404(self.model, id=self.kwargs['article_id'])
+#         return obj
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         user = self.request.user
+#         if user.is_authenticated:
+#             collected = user.is_collecting(self.object)
+#             context['collected'] = collected
+#         return context
 
 
 class BlogListView(ListView):
@@ -129,8 +169,27 @@ class IndexView(BlogListView):
 
     def get_queryset(self):
         """获取所有公开的文章"""
-        queryset = Blog.objects.filter(published_flag=1).order_by('-last_modifiy')
+        queryset = Blog.get_all_public()
         return queryset
+
+
+class SearchView(BlogListView):
+    """简单搜索 使用Q() xxx_icontains """
+    template_name = 'search.html'
+
+    def get_queryset(self):
+        queryset = []
+        self.keywords = self.request.GET.get('query')
+        if self.keywords == "":
+            messages.warning(self.request, _("请输入要查询的内容"))
+        else:
+            queryset = Blog.get_all_public().filter(Q(title__icontains=self.keywords) | Q(text__icontains=self.keywords))
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['keywords'] = self.keywords
+        return context
 
 
 class CollectionListView(LoginRequiredMixin, BlogListView):

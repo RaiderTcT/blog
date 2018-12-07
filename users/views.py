@@ -8,34 +8,82 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from .models import myUser
-from .forms import ProfileForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import permission_required, login_required
 from django.utils.decorators import method_decorator
 from blog.models import Blog
-
+from .tokens import token_generator
+from .email import register_mail
+from django.contrib.sites.shortcuts import get_current_site
+from itsdangerous import SignatureExpired, BadPayload, BadSignature
 # Create your views here.
 
 
 class LoginView(auth_views.LoginView):
     template_name = 'login.html'
 
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.has_confirmed:
+            messages.add_message(self.request, settings.DANGER, _("用户未通过验证！请查收认证邮件并认证后再登录"))
+        else:
+            login(self.request, user)
+        return redirect(self.get_success_url())
+
 
 class LogoutView(auth_views.LogoutView):
     template_name = 'logged_out.html'
 
 
-class RegisterView(SuccessMessageMixin, CreateView):
+class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'register.html'
-    success_message = _("Account %(username)s was create successfully")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.object
+        token = token_generator.make_token(user.id)
+        current_site = get_current_site(self.request)
+        register_mail(token, user, recipient_list=[user.email, ],
+                      use_https=False, current_site=current_site)
+        messages.info(self.request, _('认证邮件已发送，请注意查收'))
+        return response
 
     def get_success_url(self):
         return reverse("users:login")
+
+
+def register_confirm(request, token):
+    try:
+        _id = token_generator.check_token(token)
+    except BadPayload:
+        messages.add_message(request, settings.DANGER, '验证错误,请重新注册')
+    except BadSignature:
+        messages.add_message(request, settings.DANGER, '验证错误,请重新注册')
+    except SignatureExpired:
+        _id = token_generator.remove_token(token)
+        users = myUser.objects.filter(id=_id).all()
+        for user in users:
+            user.delete()
+        messages.add_message(request, settings.DANGER, '验证码错误或已过期，请重新注册')
+        return redirect(reverse('users:register'))
+
+    try:
+        user = myUser.objects.get(id=_id)
+    except myUser.DoesNotExist:
+        messages.add_message(request, settings.DANGER, '没有此用户，请重新注册')
+        return redirect(reverse('users:register'))
+
+    user.has_confirmed = True
+    user.save()
+    login(request, user)
+    messages.add_message(request, messages.SUCCESS, "验证成功，已登录")
+
+    return redirect(reverse('blog:index'))
 
 
 class PasswordChangeView(LoginRequiredMixin, auth_views.PasswordChangeView):
@@ -55,14 +103,9 @@ class PasswordChangeView(LoginRequiredMixin, auth_views.PasswordChangeView):
         return response
 
 
-# class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
-#     template_name = 'registration/password_change_done.html'
-#     title = _('Password change successful')
-
-
 class PasswordResetView(auth_views.PasswordResetView):
     from_email = settings.EMAIL_HOST_USER
-    email_template_name = "password_reset_email.html"
+    email_template_name = "email/password_reset_email.html"
     template_name = "password_reset.html"
     # subject_template_name =
     # success_url = reverse_lazy('users:login')
@@ -92,20 +135,6 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
     def get_success_url(self):
         return reverse("users:login")
-# @login_required
-# def change_password(request):
-#     if request.method == "POST":
-#         form = PasswordChangeForm(request.POST)
-#         if form.is_valid():
-#             user = request.user
-#             if check_password(request.POST['old_password'], user.password):
-#                 user.password = make_password(request.POST['password1'])
-#                 user.save()
-#                 return redirect('users:login')
-#     else:
-#         form = PasswordChangeForm(user=request.user)
-#     context = {'form': form}
-#     return render(request, 'password_change.html', context)
 
 
 def user(request, user_username):
@@ -119,17 +148,16 @@ def user(request, user_username):
     context = {'target_user': target_user, 'followed': followed,
                'follower': follower, 'blog_num': blog_num}
     if request.user.is_authenticated and request.user != target_user:
-        follow_flag = False if request.user.is_following(target_user) else True
-        followed_flag = True if target_user.is_following(request.user) else False
-        context['follow_flag'] = follow_flag
-        context['followed_flag'] = followed_flag
+        follow_traget = True if request.user.is_following(target_user) else False
+        target_follow = True if target_user.is_following(request.user) else False
+        context['follow_traget'] = follow_traget
+        context['target_follow'] = target_follow
 
     return render(request, 'user.html', context)
 
 
 class Profile(LoginRequiredMixin, UpdateView):
     model = myUser
-    # form_class = ProfileForm
     fields = ['name', 'email', 'location', 'profession', 'bio', 'avatar']
     template_name = 'profile.html'
 
@@ -225,7 +253,7 @@ def collect(request, blog_id):
             messages.add_message(request, messages.ERROR, msg)
         else:
             user.collect(blog)
-    return redirect(reverse('blog:collection'))
+    return redirect(reverse('blog:article', args=(blog_id,)))
 
 
 @login_required
