@@ -124,21 +124,21 @@ DATABASES = {
     },
 }
 
-# CACHES = {
-#     # 使用memcached做缓存
-#     'memcached': {
-#         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#         'LOCATION': ['127.0.0.1:11211', ],
-#         'TIMEOUT': 60 * 60,
-#     },
-# }
-# CACHE_MIDDLEWARE_ALIAS = 'memcached'
-# CACHE_MIDDLEWARE_SECONDS = 60 * 15
-# CACHE_MIDDLEWARE_KEY_PREFIX = 'ulysses'
+CACHES = {
+    # 使用memcached做缓存
+    'memcached': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': ['127.0.0.1:11211', ],
+        'TIMEOUT': 60 * 60,
+    },
+}
+CACHE_MIDDLEWARE_ALIAS = 'memcached'
+CACHE_MIDDLEWARE_SECONDS = 60 * 15
+CACHE_MIDDLEWARE_KEY_PREFIX = 'ulysses'
 
-# # 选择会话存储在哪个缓存
-# SESSION_CACHE_ALIAS = 'memcached'
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+# 选择会话存储在哪个缓存
+SESSION_CACHE_ALIAS = 'memcached'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
