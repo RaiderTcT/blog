@@ -6,4 +6,4 @@ registration
 *.png
 static/
 media/
-
+settings.py

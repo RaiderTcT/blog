@@ -23,7 +23,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace("\\", "/")
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&j%#7n)4+%qim20*mq3fknr#)#x2@s(z0ir@hyka^phk9e@0+p'
+SECRET_KEY = 'keep the secret key used in production secret!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,6 +31,7 @@ DEBUG = True
 # 允许你设置哪些域名可以访问，即使在 Apache 或 Nginx 等中绑定了，这里不允许的话，也是不能访问的。
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 ADMINS = [('Ulysses', '2276777056@qq.com')]
+
 
 LIGHT = 2
 DARK = 4
@@ -106,8 +107,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-dbuser = 'dbuser'
-mysql_passwd = 'Wjl@62300313'
+dbuser = ''
+mysql_passwd = ''
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -122,7 +123,6 @@ DATABASES = {
         'PORT': '3306',
     },
 }
-
 
 # CACHES = {
 #     # 使用memcached做缓存
@@ -166,12 +166,11 @@ AUTH_PASSWORD_VALIDATORS = [
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
-
-LANGUAGE_CODE = 'zh_Hans'
 LANGUAGES = (
     ('en', ('English')),
     ('zh-hans', ('中文简体')),
 )
+LANGUAGE_CODE = 'zh-Hans'
 TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
@@ -207,26 +206,73 @@ LOGIN_URL = '/account/signin/'
 LOGIN_REDIRECT_URL = "/"
 
 
-# 日志输出到控制台
+# 完整的LOGGING配置
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
         },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        # 自定义过滤器
+        'special': {
+            # '()': 'project.logging.SpecialFilter',
+            # 'foo': 'bar',
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+            },
+        },
+        # 在DEBUG为True时才行
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        # 将消息打印到控制台
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        # 将错误级别以上的信息发送给admin邮件
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['special']
+        }
     },
     'loggers': {
+        # 处于最底层的记录器，会传递给其他记录器
         'django': {
             'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
         },
-    },
+        # 处理请求相关的消息
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # 自定义记录器
+        'myproject.custom': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+            'filters': ['special']
+        }
+    }
 }
 
 # 邮件设置
-EMAIL_HOST_USER = '2276777056@qq.com'
-EMAIL_HOST_PASSWORD = "fmakxwqrtenqeacd"
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ""
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.qq.com'
 EMAIL_PORT = 465
