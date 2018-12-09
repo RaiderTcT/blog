@@ -33,7 +33,7 @@ class BlogCreate(LoginRequiredMixin, CreateView):
         return reverse('users:login')
 
     def get_success_url(self):
-        return reverse("blog:post-list")
+        return reverse("blog:postlist")
 
     # def get_context_data(self, **kwargs):
     #     """向模板中传递标题"""
@@ -304,4 +304,4 @@ def delete_blog_completely(request, id):
     """从数据库中删除"""
     blog = get_object_or_404(Blog, id=id, author=request.user)
     blog.delete_blog_completely()
-    return redirect(reverse('blog:postlist'))
+    return redirect(reverse('blog:postlist-trash'))

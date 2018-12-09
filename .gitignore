@@ -8,3 +8,5 @@ static/
 media/
 mysite/settings.py
 .idea
+*.ini
+

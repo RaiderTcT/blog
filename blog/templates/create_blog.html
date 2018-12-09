@@ -17,7 +17,7 @@
       <input type="text" name="title" maxlength="20" class="form-control" placeholder="Title" title="" required id="id_title">
     </div>
     <div class="col-md-1 mr-md-0">
-      <input type="submit" value="{% trans 'Save' %}" class="btn btn-outline-success btn-block my-auto">
+      <input type="submit" value="{% trans 'Save' %}" class="btn btn-outline-success btn-block my-auto" formenctype="multipart/form-data"/>
     </div>
     <div class='col-md-1'>
       <div class="dropdown">
@@ -28,7 +28,7 @@
           <a class="dropdown-item" href="{% url 'users:logout'%}">{% trans "Sign Out"%}</a>
         </div>
       </div>
-    </div>   
+    </div>
   </div>
   <div class="form-group">
   {{form.text}}

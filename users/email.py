@@ -25,7 +25,7 @@ class MyEmailThread(threading.Thread):
     # 发送邮件
     def run(self):
         email_message = EmailMultiAlternatives(self.subject, self.body, self.from_email, self.recipient_list)
-
+        print("fedffffdf")
         return email_message.send(self.fail_silently)
 
 
