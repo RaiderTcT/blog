@@ -9,4 +9,4 @@ media/
 mysite/settings.py
 .idea
 *.ini
-
+Nginx
